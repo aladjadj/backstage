@@ -37,6 +37,7 @@ const GERRIT_BODY_PREFIX = ")]}'";
  *
  * Gitiles url:
  * https://g.com/optional_path/\{project\}/+/refs/heads/\{branch\}/\{filePath\}
+ * https://g.com/a/optional_path/\{project\}/+/refs/heads/\{branch\}/\{filePath\}
  *
  *
  * @param url - An URL pointing to a file stored in git.
@@ -47,7 +48,17 @@ export function parseGerritGitilesUrl(
   config: GerritIntegrationConfig,
   url: string,
 ): { branch: string; filePath: string; project: string } {
-  const urlPath = url.replace(config.gitilesBaseUrl!, '');
+  // Remove the gerrit authentication prefix '/a/' from the url
+  // In case of the gitilesBaseUrl is https://review.gerrit.com/plugins/gitiles
+  // and the url provided is https://review.gerrit.com/a/plugins/gitiles/...
+  // remove the prefix only if the pathname start with '/a/'
+
+  const baseUrlParse = new URL(config.gitilesBaseUrl!);
+  const urlParse = new URL(url);
+  const urlPath = urlParse.pathname
+    .substring(urlParse.pathname.startsWith('/a/') ? 2 : 0)
+    .replace(baseUrlParse.pathname, '');
+
   const parts = urlPath.split('/').filter(p => !!p);
 
   const projectEndIndex = parts.indexOf('+');
@@ -89,6 +100,30 @@ export function buildGerritGitilesUrl(
   return `${
     config.gitilesBaseUrl
   }/${project}/+/refs/heads/${branch}/${trimStart(filePath, '/')}`;
+}
+
+/**
+ * Build a Gerrit Gitiles archive url that targets a specific branch and path
+ *
+ * @param config - A Gerrit provider config.
+ * @param project - The name of the git project
+ * @param branch - The branch we will target.
+ * @param filePath - The absolute file path.
+ * @public
+ */
+export function buildGerritGitilesArchiveUrl(
+  config: GerritIntegrationConfig,
+  project: string,
+  branch: string,
+  filePath: string,
+): string {
+  return `${config.gitilesBaseUrl?.replace(
+    `${config.host}/`,
+    config.host + getAuthenticationPrefix(config),
+  )}/${project}/+archive/refs/heads/${branch}/${trimStart(
+    filePath,
+    '/',
+  )}.tar.gz`;
 }
 
 /**
