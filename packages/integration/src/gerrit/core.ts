@@ -117,9 +117,8 @@ export function buildGerritGitilesArchiveUrl(
   branch: string,
   filePath: string,
 ): string {
-  return `${config.gitilesBaseUrl?.replace(
-    `${config.host}/`,
-    config.host + getAuthenticationPrefix(config),
+  return `${getGitilesAuthenticationUrl(
+    config,
   )}/${project}/+archive/refs/heads/${branch}/${trimStart(
     filePath,
     '/',
@@ -142,6 +141,27 @@ export function getAuthenticationPrefix(
   config: GerritIntegrationConfig,
 ): string {
   return config.password ? '/a/' : '/';
+}
+
+/**
+ * Return the authentication gitiles url.
+ *
+ * @remarks
+ *
+ * To authenticate with a password the API url must be prefixed with "/a/".
+ * If no password is set anonymous access (without the prefix) will
+ * be used.
+ *
+ * @param config - A Gerrit provider config.
+ * @public
+ */
+export function getGitilesAuthenticationUrl(
+  config: GerritIntegrationConfig,
+): string {
+  const parsedUrl = new URL(config.gitilesBaseUrl!);
+  return `${parsedUrl.protocol}//${parsedUrl.host}${getAuthenticationPrefix(
+    config,
+  )}${parsedUrl.pathname.substring(1)}`;
 }
 
 /**

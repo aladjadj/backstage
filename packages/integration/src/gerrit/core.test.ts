@@ -86,6 +86,25 @@ describe('gerrit core', () => {
       );
       expect(rootPath).toEqual('/');
     });
+    it('can parse a valid authenticate gitiles urls.', () => {
+      const config: GerritIntegrationConfig = {
+        host: 'gerrit.com',
+        gitilesBaseUrl: 'https://gerrit.com/gitiles',
+      };
+      const { branch, filePath, project } = parseGerritGitilesUrl(
+        config,
+        'https://gerrit.com/a/gitiles/web/project/+/refs/heads/master/README.md',
+      );
+      expect(project).toEqual('web/project');
+      expect(branch).toEqual('master');
+      expect(filePath).toEqual('README.md');
+
+      const { filePath: rootPath } = parseGerritGitilesUrl(
+        config,
+        'https://gerrit.com/gitiles/web/project/+/refs/heads/master',
+      );
+      expect(rootPath).toEqual('/');
+    });
     it('throws on incorrect gitiles urls.', () => {
       const config: GerritIntegrationConfig = {
         host: 'gerrit.com',

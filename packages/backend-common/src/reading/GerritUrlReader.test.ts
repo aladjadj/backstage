@@ -54,7 +54,6 @@ const gerritProcessor = new GerritUrlReader(
     ),
   ),
   { treeResponseFactory },
-  '/tmp',
 );
 
 const createReader = (config: JsonObject): UrlReaderPredicateTuple[] => {
