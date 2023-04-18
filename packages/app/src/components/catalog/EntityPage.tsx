@@ -167,6 +167,7 @@ import {
   isLinguistAvailable,
   EntityLinguistCard,
 } from '@backstage/plugin-linguist';
+import { EntityAdrContent } from '@backstage/plugin-adr';
 
 const customEntityFilterKind = ['Component', 'API', 'System'];
 
@@ -775,6 +776,13 @@ const systemPage = (
           <InfoCard title="Rate this entity">
             <LikeDislikeButtons />
           </InfoCard>
+        </Grid>
+      </Grid>
+    </EntityLayout.Route>
+    <EntityLayout.Route path="/adr" title="ADR">
+      <Grid container spacing={3} alignItems="stretch">
+        <Grid item xs={12}>
+          <EntityAdrContent />
         </Grid>
       </Grid>
     </EntityLayout.Route>
